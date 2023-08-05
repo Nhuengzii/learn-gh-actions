@@ -16,7 +16,7 @@ jobs:
         run: npm install pnpm
 
       - name: Install dependencies with pnpm
-        uses: pnpm install
+        run: pnpm install
 
       - name: Build react project
         run: pnpm run build
