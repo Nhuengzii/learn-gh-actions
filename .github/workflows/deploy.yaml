@@ -13,7 +13,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
       - name: install pnpm
-        run: npm install pnpm
+        run: npm install -g pnpm
 
       - name: Install dependencies with pnpm
         run: pnpm install
