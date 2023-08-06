@@ -1,802 +1,1172 @@
-openapi: 3.0.3
+openapi: "3.0.1"
 info:
-  title: Swagger Petstore - OpenAPI 3.0
-  description: |-
-    This is a sample Pet Store Server based on the OpenAPI 3.0 specification.  You can find out more about
-    Swagger at [https://swagger.io](https://swagger.io). In the third iteration of the pet store, we've switched to the design first approach!
-    You can now help us improve the API whether it's by making changes to the definition itself or to the code.
-    That way, with time, we can improve the API in general, and expose some of the new features in OAS3.
-
-    _If you're looking for the Swagger 2.0/OAS 2.0 version of Petstore, then click [here](https://editor.swagger.io/?url=https://petstore.swagger.io/v2/swagger.yaml). Alternatively, you can load via the `Edit > Load Petstore OAS 2.0` menu option!_
-
-    Some useful links:
-    - [The Pet Store repository](https://github.com/swagger-api/swagger-petstore)
-    - [The source API definition for the Pet Store](https://github.com/swagger-api/swagger-petstore/blob/master/src/main/resources/openapi.yaml)
-  termsOfService: http://swagger.io/terms/
+  title: "LearnHUB API"
+  description: "This is an API for LearnHUB system."
+  version: "1.0.0"
   contact:
-    email: apiteam@swagger.io
-  license:
-    name: Apache 2.0
-    url: http://www.apache.org/licenses/LICENSE-2.0.html
-  version: 1.0.11
-externalDocs:
-  description: Find out more about Swagger
-  url: http://swagger.io
+    email: "learnhubdev@gmail.com"
 servers:
-  - url: https://petstore3.swagger.io/api/v3
+  # id is subject to change
+  - url: "https://{domain}/{stage}"
+    variables:
+      id:
+        default: "test_domain"
+      stage:
+        default: "dev"
 tags:
-  - name: pet
-    description: Everything about your Pets
-    externalDocs:
-      description: Find out more
-      url: http://swagger.io
-  - name: store
-    description: Access to Petstore orders
-    externalDocs:
-      description: Find out more about our store
-      url: http://swagger.io
   - name: user
-    description: Operations about user
+    description: "Operations that involve users"
+  - name: achievement
+    description: "Operations that involve achievements"
+  - name: program
+    description: "Operations that involve study programs"
+  - name: transaction
+    description: "Operations that involve transaction"
+  - name: auth
+    description: "Operations that involve user's authentication"
 paths:
-  /pet:
-    put:
+  /users/students:
+    get:
       tags:
-        - pet
-      summary: Update an existing pet
-      description: Update an existing pet by Id
-      operationId: updatePet
+        - user
+      summary: List all students basic information.
+      description: |
+        For retrieving multiple students's profile.
+      operationId: listStudents
+      responses:
+        "200":
+          description: "OK: List students."
+          content:
+            application/json:
+              schema:
+                required:
+                  - students
+                properties:
+                  students:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/student"
+  "/users/students/{student-id}":
+    get:
+      tags:
+        - user
+      summary: Get specific student's basic information.
+      description: |
+        For retrieving a student's profile.
+      operationId: getStudent
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      responses:
+        "200":
+          description: "OK: Get student."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/student"
+    patch:
+      tags:
+        - user
+      summary: Edit specific student's basic information.
+      description: |
+        For editing a student's profile.
+      operationId: patchStudent
+      parameters:
+        - $ref: "#/components/parameters/studentID"
       requestBody:
-        description: Update an existent pet in the store
+        description: Student profile edit
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Pet'
-        required: true
+              type: object
+              properties:
+                username:
+                  type: string
+                  example: "paff"
+                fullname:
+                  type: string
+                  example: "foo bar"
+                profile_pic:
+                  type: string
+                  example: "https://example-pic.png"
+
       responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-        '405':
-          description: Validation exception
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    post:
-      tags:
-        - pet
-      summary: Add a new pet to the store
-      description: Add a new pet to the store
-      operationId: addPet
-      requestBody:
-        description: Create a new pet in the store
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Pet'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Pet'
-        required: true
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/findByStatus:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by status
-      description: Multiple status values can be provided with comma separated strings
-      operationId: findPetsByStatus
-      parameters:
-        - name: status
-          in: query
-          description: Status values that need to be considered for filter
-          required: false
-          explode: true
-          schema:
-            type: string
-            default: available
-            enum:
-              - available
-              - pending
-              - sold
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid status value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /pet/findByTags:
-    get:
-      tags:
-        - pet
-      summary: Finds Pets by tags
-      description: Multiple tags can be provided with comma separated strings. Use tag1, tag2, tag3 for testing.
-      operationId: findPetsByTags
-      parameters:
-        - name: tags
-          in: query
-          description: Tags to filter by
-          required: false
-          explode: true
-          schema:
-            type: array
-            items:
-              type: string
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid tag value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  "/pet/{petId}":
-    get:
-      tags:
-        - pet
-      summary: Find pet by ID
-      description: Returns a single pet
-      operationId: getPetById
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to return
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Pet'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Pet'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Pet not found
-      security:
-        - api_key: []
-        - petstore_auth:
-            - write:pets
-            - read:pets
-    post:
-      tags:
-        - pet
-      summary: Updates a pet in the store with form data
-      description: ''
-      operationId: updatePetWithForm
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet that needs to be updated
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: name
-          in: query
-          description: Name of pet that needs to be updated
-          schema:
-            type: string
-        - name: status
-          in: query
-          description: Status of pet that needs to be updated
-          schema:
-            type: string
-      responses:
-        '405':
-          description: Invalid input
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
+        "200":
+          $ref: "#/components/responses/OK"
     delete:
       tags:
-        - pet
-      summary: Deletes a pet
-      description: delete a pet
-      operationId: deletePet
+        - user
+      summary: Delete specific student's account.
+      description: |
+        For removing a student's account.
+      operationId: deleteStudent
       parameters:
-        - name: api_key
-          in: header
-          description: ''
-          required: false
-          schema:
-            type: string
-        - name: petId
-          in: path
-          description: Pet id to delete
-          required: true
-          schema:
-            type: integer
-            format: int64
+        - $ref: "#/components/parameters/studentID"
       responses:
-        '400':
-          description: Invalid pet value
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  "/pet/{petId}/uploadImage":
-    post:
-      tags:
-        - pet
-      summary: uploads an image
-      description: ''
-      operationId: uploadFile
-      parameters:
-        - name: petId
-          in: path
-          description: ID of pet to update
-          required: true
-          schema:
-            type: integer
-            format: int64
-        - name: additionalMetadata
-          in: query
-          description: Additional Metadata
-          required: false
-          schema:
-            type: string
-      requestBody:
-        content:
-          application/octet-stream:
-            schema:
-              type: string
-              format: binary
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ApiResponse'
-      security:
-        - petstore_auth:
-            - write:pets
-            - read:pets
-  /store/inventory:
+        "200":
+          $ref: "#/components/responses/OK"
+  "/users/students/{student-id}/achievements":
     get:
       tags:
-        - store
-      summary: Returns pet inventories by status
-      description: Returns a map of status codes to quantities
-      operationId: getInventory
+        - user
+      summary: List student's achievements.
+      description: For retrieving specific student's achievements.
+      operationId: listStudentAchievements
+      parameters:
+        - $ref: "#/components/parameters/studentID"
       responses:
-        '200':
-          description: successful operation
+        "200":
+          description: "OK: List student's achievements."
           content:
             application/json:
               schema:
-                type: object
-                additionalProperties:
+                required:
+                  - achievements
+                properties:
+                  achievements:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/studentAchievement"
+  "/users/students/{student-id}/programs":
+    get:
+      tags:
+        - user
+      summary: List student's programs.
+      description: For retrieving specific student's programs.
+      operationId: listStudentPrograms
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      responses:
+        "200":
+          description: "OK: List student's programs."
+          content:
+            application/json:
+              schema:
+                required:
+                  - courses
+                  - classes
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userCourse"
+                  classes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userClass"
+  "/users/students/{student-id}/programs/classes":
+    get:
+      tags:
+        - user
+      summary: List student's classes.
+      description: For retrieving specific student's classes.
+      operationId: listStudentClasses
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      responses:
+        "200":
+          description: "OK: List student's classes."
+          content:
+            application/json:
+              schema:
+                required:
+                  - classes
+                properties:
+                  classes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userClass"
+  "/users/students/{student-id}/programs/courses":
+    get:
+      tags:
+        - user
+      summary: List student's courses.
+      description: |
+        For retrieving specific student's courses.
+      operationId: listStudentCourses
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      responses:
+        "200":
+          description: "OK: List student's courses."
+          content:
+            application/json:
+              schema:
+                required:
+                  - courses
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userCourse"
+  "/users/students/{student-id}/wishlist":
+    get:
+      tags:
+        - user
+      summary: List student's wishlist items.
+      description: |
+        For retrieving specific student's wishlist items.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: listStudentWishlist
+      responses:
+        "200":
+          description: "OK: List student's wishlist"
+          content:
+            application/json:
+              schema:
+                required:
+                  - wishlist
+                properties:
+                  wishlist:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/studentWishlistItem"
+    post:
+      tags:
+        - user
+      summary: Add a student's wishlist item.
+      description: |
+        For adding specific student's wishlist item.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: postStudentWishlist
+      requestBody:
+        description: Class or Course to add to wishlist.
+        required: true
+        content:
+          application/json:
+            schema:
+              minItems: 2
+              maxItems: 2
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  example: "class"
+                class_id:
+                  type: string
+                  example: "1234"
+                course_id:
+                  type: string
+                  example: "1234"
+      responses:
+        "200":
+          description: "OK: Add student's wishlist item"
+          content:
+            application/json:
+              schema:
+                required:
+                  - wishlist-item-id
+                properties:
+                  wishlist-item-id:
+                    type: string
+                    example: "1234"
+  "/users/students/{student-id}/wishlist/{wishlist-item-id}":
+    get:
+      tags:
+        - user
+      summary: Get student's specific wishlist item.
+      description: |
+        For retrieving a student's wishlist item.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+        - $ref: "#/components/parameters/wishlistItemID"
+      operationId: getStudentWishlistItem
+      responses:
+        "200":
+          description: "OK: Get a student's wishlist item"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/studentWishlistItem"
+    delete:
+      tags:
+        - user
+      summary: Delete student's specific wishlist item.
+      description: |
+        For removing student's wishlist item.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+        - $ref: "#/components/parameters/wishlistItemID"
+      operationId: deleteStudentWishlistItem
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+  "/users/students/{student-id}/config":
+    get:
+      tags:
+        - user
+      summary: Get student's config.
+      description: |
+        For retrieving a student's config.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: getStudentConfig
+      responses:
+        "200":
+          description: "OK: Get a student's config"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userConfig"
+    patch:
+      tags:
+        - user
+      summary: Patch student's config.
+      description: |
+        For editing a student's config.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: patchStudentConfig
+      requestBody:
+        description: student config edit
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userConfig"
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+  "/users/students/{student-id}/payment-methods":
+    get:
+      tags:
+        - user
+      summary: List student's payment methods.
+      description: |
+        For retrieving a student's payment methods.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: listStudentPaymentMethods
+      responses:
+        "200":
+          description: "OK: List student's payment methods"
+          content:
+            application/json:
+              schema:
+                properties:
+                  payment_methods:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userPaymentMethod"
+    post:
+      tags:
+        - user
+      summary: Add  a student's payment method.
+      description: |
+        For adding a student's payment method.
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: postStudentPaymentMethod
+      requestBody:
+        description: User's payment method details
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - type
+                - card_number
+                - cvc
+                - expiration_date
+                - holder_fullname
+              properties:
+                name:
+                  type: string
+                  example: "my-kbank-debit"
+                type:
+                  type: string
+                  example: "kbank_debit"
+                card_number:
                   type: integer
-                  format: int32
-      security:
-        - api_key: []
-  /store/order:
-    post:
-      tags:
-        - store
-      summary: Place an order for a pet
-      description: Place a new order in the store
-      operationId: placeOrder
-      requestBody:
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Order'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/Order'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/Order'
+                  example: 12121313
+                cvc:
+                  type: integer
+                  example: 232
+                expiration_date:
+                  type: string
+                  example: "08/25"
+                holder_fullname:
+                  type: string
+                  example: "foo bar"
       responses:
-        '200':
-          description: successful operation
+        "200":
+          description: "OK: Add student's payment methods"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Order'
-        '405':
-          description: Invalid input
-  "/store/order/{orderId}":
-    get:
-      tags:
-        - store
-      summary: Find purchase order by ID
-      description: For valid response try integer IDs with value <= 5 or > 10. Other values will generate exceptions.
-      operationId: getOrderById
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of order that needs to be fetched
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Order'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/Order'
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-    delete:
-      tags:
-        - store
-      summary: Delete purchase order by ID
-      description: For valid response try integer IDs with value < 1000. Anything above 1000 or nonintegers will generate API errors
-      operationId: deleteOrder
-      parameters:
-        - name: orderId
-          in: path
-          description: ID of the order that needs to be deleted
-          required: true
-          schema:
-            type: integer
-            format: int64
-      responses:
-        '400':
-          description: Invalid ID supplied
-        '404':
-          description: Order not found
-  /user:
-    post:
-      tags:
-        - user
-      summary: Create user
-      description: This can only be done by the logged in user.
-      operationId: createUser
-      requestBody:
-        description: Created user object
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/User'
-      responses:
-        default:
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-  /user/createWithList:
-    post:
-      tags:
-        - user
-      summary: Creates list of users with given input array
-      description: Creates list of users with given input array
-      operationId: createUsersWithListInput
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/User'
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        default:
-          description: successful operation
-  /user/login:
+                properties:
+                  payment_method_id:
+                    type: string
+                    example: "1234"
+  "/users/students/{student-id}/payment-methods/{payment-method-id}":
     get:
       tags:
         - user
-      summary: Logs user into the system
-      description: ''
-      operationId: loginUser
+      summary: Get student's payment method.
+      description: |
+        For retrieving a student's payment method.
       parameters:
-        - name: username
-          in: query
-          description: The user name for login
-          required: false
-          schema:
-            type: string
-        - name: password
-          in: query
-          description: The password for login in clear text
-          required: false
-          schema:
-            type: string
+        - $ref: "#/components/parameters/studentID"
+        - $ref: "#/components/parameters/paymentMethodID"
+      operationId: getStudentPaymentMethod
       responses:
-        '200':
-          description: successful operation
-          headers:
-            X-Rate-Limit:
-              description: calls per hour allowed by the user
-              schema:
-                type: integer
-                format: int32
-            X-Expires-After:
-              description: date in UTC when token expires
-              schema:
-                type: string
-                format: date-time
-          content:
-            application/xml:
-              schema:
-                type: string
-            application/json:
-              schema:
-                type: string
-        '400':
-          description: Invalid username/password supplied
-  /user/logout:
-    get:
-      tags:
-        - user
-      summary: Logs out current logged in user session
-      description: ''
-      operationId: logoutUser
-      parameters: []
-      responses:
-        default:
-          description: successful operation
-  "/user/{username}":
-    get:
-      tags:
-        - user
-      summary: Get user by user name
-      description: ''
-      operationId: getUserByName
-      parameters:
-        - name: username
-          in: path
-          description: 'The name that needs to be fetched. Use user1 for testing. '
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: successful operation
+        "200":
+          description: "OK: Get student's specific payment method"
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-            application/xml:
-              schema:
-                $ref: '#/components/schemas/User'
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
-    put:
+                $ref: "#/components/schemas/userPaymentMethod"
+    patch:
       tags:
         - user
-      summary: Update user
-      description: This can only be done by the logged in user.
-      operationId: updateUser
+      summary: Edit student's payment method.
+      description: |
+        For editing a student's payment method.
       parameters:
-        - name: username
-          in: path
-          description: name that need to be deleted
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/studentID"
+        - $ref: "#/components/parameters/paymentMethodID"
+      operationId: patchStudentPaymentMethod
       requestBody:
-        description: Update an existent user in the store
+        description: User's payment method details to edit
+        required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
-          application/xml:
-            schema:
-              $ref: '#/components/schemas/User'
-          application/x-www-form-urlencoded:
-            schema:
-              $ref: '#/components/schemas/User'
+              required:
+                - name
+                - type
+                - card_number
+                - cvc
+                - expiration_date
+                - holder_fullname
+              properties:
+                name:
+                  type: string
+                  example: "my-kbank-debit"
+                type:
+                  type: string
+                  example: "kbank_debit"
+                card_number:
+                  type: integer
+                  example: 12121313
+                cvc:
+                  type: integer
+                  example: 232
+                expiration_date:
+                  type: string
+                  example: "08/25"
+                holder_fullname:
+                  type: string
+                  example: "foo bar"
       responses:
-        default:
-          description: successful operation
+        "200":
+          $ref: "#/components/responses/OK"
     delete:
       tags:
         - user
-      summary: Delete user
-      description: This can only be done by the logged in user.
-      operationId: deleteUser
+      summary: Delete student's payment method.
+      description: |
+        For deleting a student's payment method.
       parameters:
-        - name: username
-          in: path
-          description: The name that needs to be deleted
-          required: true
-          schema:
-            type: string
+        - $ref: "#/components/parameters/studentID"
+        - $ref: "#/components/parameters/paymentMethodID"
+      operationId: deleteStudentPaymentMethod
       responses:
-        '400':
-          description: Invalid username supplied
-        '404':
-          description: User not found
+        "200":
+          $ref: "#/components/responses/OK"
+  "/users/students/{student-id}/purchases-history":
+    get:
+      tags:
+        - user
+      summary: Get student's purchases-history
+      description: |
+        For retrieving student's purchases-history
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: getStudentPurchasesHistory
+      responses:
+        "200":
+          description: "OK: Get student's purchases history"
+          content:
+            application/json:
+              schema:
+                properties:
+                  purchases_history:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/studentPurchasesHistoryItem"
+  "/users/student/{student-id}/basket":
+    get:
+      tags:
+        - user
+      summary: Get student's basket
+      description: |
+        For retrieving student's basket
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: getStudentBasket
+      responses:
+        "200":
+          description: "OK: Get student's basket"
+          content:
+            application/json:
+              schema:
+                properties:
+                  basket:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/studentBasketItem"
+    post:
+      tags:
+        - user
+      summary: Add student's basket item
+      description: |
+        For adding a student's basket item
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+      operationId: addStudentBasketItem
+      requestBody:
+        description: Student's basket item details
+        required: true
+        content:
+          application/json:
+            schema:
+              minItems: 2
+              maxItems: 2
+              required:
+                - type
+              properties:
+                type:
+                  type: string
+                  example: "class"
+                class_id:
+                  type: string
+                  example: "1234"
+                course_id:
+                  type: string
+                  example: "1234"
+      responses:
+        "200":
+          description: "OK: Add student basket item"
+          content:
+            application/json:
+              schema:
+                properties:
+                  basket_item_id:
+                    type: string
+                    example: "1234"
+  "/users/student/{student-id}/basket/{basket-item-id}":
+    get:
+      tags:
+        - user
+      summary: Get student's basket item
+      description: |
+        For retrieving student's basket item
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+        - $ref: "#/components/parameters/basketItemID"
+      operationId: getStudentBasketItem
+      responses:
+        "200":
+          description: "OK: Get student's basket item"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/studentBasketItem"
+    delete:
+      tags:
+        - user
+      summary: Delete student's basket item
+      description: |
+        For deleting student's basket item
+      parameters:
+        - $ref: "#/components/parameters/studentID"
+        - $ref: "#/components/parameters/basketItemID"
+      operationId: deleteStudentBasketItem
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+  /users/teachers:
+    get:
+      tags:
+        - user
+      summary: List all teachers basic information.
+      description: |
+        For retrieving multiple teacher's profile.
+      operationId: listTeachers
+      responses:
+        "200":
+          description: "OK: List teachers."
+          content:
+            application/json:
+              schema:
+                required:
+                  - teachers
+                properties:
+                  teachers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/teacher"
+  "/users/teachers/{teacher-id}/programs":
+    get:
+      tags:
+        - user
+      summary: List teacher's programs.
+      description: For retrieving specific teacher's programs.
+      operationId: listTeacherPrograms
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+      responses:
+        "200":
+          description: "OK: List teacher's programs."
+          content:
+            application/json:
+              schema:
+                required:
+                  - courses
+                  - classes
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userCourse"
+                  classes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userClass"
+  "/users/teachers/{teacher-id}/programs/classes":
+    get:
+      tags:
+        - user
+      summary: List teacher's classes.
+      description: For retrieving specific teacher's classes.
+      operationId: listTeacherClasses
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+      responses:
+        "200":
+          description: "OK: List teacher's classes."
+          content:
+            application/json:
+              schema:
+                required:
+                  - classes
+                properties:
+                  classes:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userClass"
+  "/users/teachers/{teacher-id}/programs/courses":
+    get:
+      tags:
+        - user
+      summary: List teacher's courses.
+      description: |
+        For retrieving specific teacher's courses.
+      operationId: listTeacherCourses
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+      responses:
+        "200":
+          description: "OK: List teacher's courses."
+          content:
+            application/json:
+              schema:
+                required:
+                  - courses
+                properties:
+                  courses:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userCourse"
+  "/users/teachers/{teacher-id}/config":
+    get:
+      tags:
+        - user
+      summary: Get teacher's config.
+      description: |
+        For retrieving a teacher's config.
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+      operationId: getTeacherConfig
+      responses:
+        "200":
+          description: "OK: Get a teacher's config"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userConfig"
+    patch:
+      tags:
+        - user
+      summary: Patch teacher's config.
+      description: |
+        For editing a teacher's config.
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+      operationId: patchTeacherConfig
+      requestBody:
+        description: teacher config edit
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/userConfig"
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+  "/users/teachers/{teacher-id}/payment-methods":
+    get:
+      tags:
+        - user
+      summary: List teacher's payment methods.
+      description: |
+        For retrieving a teacher's payment methods.
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+      operationId: listTeacherPaymentMethods
+      responses:
+        "200":
+          description: "OK: List teacher's payment methods"
+          content:
+            application/json:
+              schema:
+                properties:
+                  payment_methods:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/userPaymentMethod"
+    post:
+      tags:
+        - user
+      summary: Add  a teacher's payment method.
+      description: |
+        For adding a teacher's payment method.
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+      operationId: postTeacherPaymentMethod
+      requestBody:
+        description: User's payment method details
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - type
+                - card_number
+                - cvc
+                - expiration_date
+                - holder_fullname
+              properties:
+                name:
+                  type: string
+                  example: "my-kbank-debit"
+                type:
+                  type: string
+                  example: "kbank_debit"
+                card_number:
+                  type: integer
+                  example: 12121313
+                cvc:
+                  type: integer
+                  example: 232
+                expiration_date:
+                  type: string
+                  example: "08/25"
+                holder_fullname:
+                  type: string
+                  example: "foo bar"
+      responses:
+        "200":
+          description: "OK: Add teacher's payment methods"
+          content:
+            application/json:
+              schema:
+                properties:
+                  payment_method_id:
+                    type: string
+                    example: "1234"
+  "/users/teachers/{teacher-id}/payment-methods/{payment-method-id}":
+    get:
+      tags:
+        - user
+      summary: Get teacher's payment method.
+      description: |
+        For retrieving a teacher's payment method.
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+        - $ref: "#/components/parameters/paymentMethodID"
+      operationId: getTeacherPaymentMethod
+      responses:
+        "200":
+          description: "OK: Get teacher's specific payment method"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/userPaymentMethod"
+    patch:
+      tags:
+        - user
+      summary: Edit teacher's payment method.
+      description: |
+        For editing a teacher's payment method.
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+        - $ref: "#/components/parameters/paymentMethodID"
+      operationId: patchTeacherPaymentMethod
+      requestBody:
+        description: User's payment method details to edit
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - type
+                - card_number
+                - cvc
+                - expiration_date
+                - holder_fullname
+              properties:
+                name:
+                  type: string
+                  example: "my-kbank-debit"
+                type:
+                  type: string
+                  example: "kbank_debit"
+                card_number:
+                  type: integer
+                  example: 12121313
+                cvc:
+                  type: integer
+                  example: 232
+                expiration_date:
+                  type: string
+                  example: "08/25"
+                holder_fullname:
+                  type: string
+                  example: "foo bar"
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+    delete:
+      tags:
+        - user
+      summary: Delete teacher's payment method.
+      description: |
+        For deleting a teacher's payment method.
+      parameters:
+        - $ref: "#/components/parameters/teacherID"
+        - $ref: "#/components/parameters/paymentMethodID"
+      operationId: deleteTeacherPaymentMethod
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+
 components:
+  responses:
+    OK:
+      description: Server return 200 OK response.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/responseScheme"
+          example:
+            code: 200
+            message: "OK"
+
+    InternalServerError:
+      description: Server encounter unexpected errors.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/responseScheme"
+          example:
+            code: 500
+            message: "Internal Server Error"
+    Unauthorized:
+      description: Unauthorized.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/responseScheme"
+          example:
+            code: 401
+            message: "Unauthorized"
+    NotFound:
+      description: The specified resource was not found.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/responseScheme"
+          example:
+            code: 404
+            message: "Not Found"
+
   schemas:
-    Order:
+    responseScheme:
       type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        petId:
-          type: integer
-          format: int64
-          example: 198772
-        quantity:
-          type: integer
-          format: int32
-          example: 7
-        shipDate:
-          type: string
-          format: date-time
-        status:
-          type: string
-          description: Order Status
-          example: approved
-          enum:
-            - placed
-            - approved
-            - delivered
-        complete:
-          type: boolean
-      xml:
-        name: order
-    Customer:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 100000
-        username:
-          type: string
-          example: fehguy
-        address:
-          type: array
-          xml:
-            name: addresses
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Address'
-      xml:
-        name: customer
-    Address:
-      type: object
-      properties:
-        street:
-          type: string
-          example: 437 Lytton
-        city:
-          type: string
-          example: Palo Alto
-        state:
-          type: string
-          example: CA
-        zip:
-          type: string
-          example: '94301'
-      xml:
-        name: address
-    Category:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 1
-        name:
-          type: string
-          example: Dogs
-      xml:
-        name: category
-    User:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        username:
-          type: string
-          example: theUser
-        firstName:
-          type: string
-          example: John
-        lastName:
-          type: string
-          example: James
-        email:
-          type: string
-          example: john@email.com
-        password:
-          type: string
-          example: '12345'
-        phone:
-          type: string
-          example: '12345'
-        userStatus:
-          type: integer
-          description: User Status
-          format: int32
-          example: 1
-      xml:
-        name: user
-    Tag:
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-        name:
-          type: string
-      xml:
-        name: tag
-    Pet:
       required:
-        - name
-        - photoUrls
-      type: object
-      properties:
-        id:
-          type: integer
-          format: int64
-          example: 10
-        name:
-          type: string
-          example: doggie
-        category:
-          $ref: '#/components/schemas/Category'
-        photoUrls:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            type: string
-            xml:
-              name: photoUrl
-        tags:
-          type: array
-          xml:
-            wrapped: true
-          items:
-            $ref: '#/components/schemas/Tag'
-        status:
-          type: string
-          description: pet status in the store
-          enum:
-            - available
-            - pending
-            - sold
-      xml:
-        name: pet
-    ApiResponse:
-      type: object
+        - code
+        - message
       properties:
         code:
-          type: integer
-          format: int32
-        type:
-          type: string
+          type: number
+          example: 400
         message:
           type: string
-      xml:
-        name: '##default'
-  requestBodies:
-    Pet:
-      description: Pet object that needs to be added to the store
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Pet'
-        application/xml:
-          schema:
-            $ref: '#/components/schemas/Pet'
-    UserArray:
-      description: List of user object
-      content:
-        application/json:
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/User'
-  securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+          example: "Internal Server Error"
+    userCourse:
+      type: object
+      required:
+        - course_id
+        - name
+      properties:
+        course_id:
+          type: string
+          example: "1234"
+        name:
+          type: string
+          example: "Advanced redstone weaponry"
+    userClass:
+      type: object
+      required:
+        - class_id
+        - name
+      properties:
+        class_id:
+          type: string
+          example: "1234"
+        name:
+          type: string
+          example: "Basic dropper mechanic"
+    userConfig:
+      type: object
+      required:
+        - theme
+      properties:
+        theme:
+          type: string
+          example: "light"
+    userPaymentMethod:
+      type: object
+      required:
+        - payment_method_id
+        - name
+        - type
+        - card_number
+        - cvc
+        - expiration_date
+        - holder_fullname
+      properties:
+        payment_method_id:
+          type: string
+          example: "1234"
+        name:
+          type: string
+          example: "my-kbank-debit"
+        type:
+          type: string
+          example: "kbank_debit"
+        card_number:
+          type: integer
+          example: 12121313
+        cvc:
+          type: integer
+          example: 232
+        expiration_date:
+          type: string
+          example: "08/25"
+        holder_fullname:
+          type: string
+          example: "foo bar"
+
+    student:
+      type: object
+      required:
+        - student_id
+        - username
+        - email
+        - fullname
+        - profile_pic
+      properties:
+        student_id:
+          type: string
+          example: "123456789"
+        username:
+          type: string
+          example: "foo-bar"
+        email:
+          type: string
+          example: "example@example.com"
+        fullname:
+          type: string
+          example: "foo bar"
+        profile_pic:
+          type: string
+          example: "https://example/pic.png"
+    studentAchievement:
+      type: object
+      required:
+        - achievement_id
+        - name
+        - description
+        - achievement_pic
+      properties:
+        achievement_id:
+          type: string
+          example: "1234"
+        name:
+          type: string
+          example: "Classes Collector"
+        description:
+          type: string
+          example: "Own 10 different classes."
+        achievement_pic:
+          type: string
+          example: "https://example/image.png"
+    studentWishlistItem:
+      type: object
+      minItems: 4
+      maxItems: 4
+      required:
+        - name
+        - type
+        - price
+      properties:
+        wishlist_item_id:
+          type: string
+          example: "1234"
+        name:
+          type: string
+          example: "discreet math"
+        type:
+          type: string
+          example: "class"
+        class_id:
+          type: string
+          example: "123"
+        course_id:
+          type: string
+          example: "123"
+        price:
+          type: number
+          example: 1200.2
+    studentPurchasesHistoryItem:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "class"
+        class_id:
+          type: string
+          example: "1234"
+        course_id:
+          type: string
+          example: "1234"
+        price:
+          type: number
+          example: 1200
+        name:
+          type: string
+          example: "Intro to physics"
+    studentBasketItem:
+      type: object
+      minItems: 4
+      maxItems: 4
+      required:
+        - name
+        - type
+        - price
+      properties:
+        basket_item_id:
+          type: string
+          example: "1234"
+        name:
+          type: string
+          example: "discreet math"
+        type:
+          type: string
+          example: "class"
+        class_id:
+          type: string
+          example: "123"
+        course_id:
+          type: string
+          example: "123"
+        price:
+          type: number
+          example: 1200.2
+
+    teacher:
+      type: object
+      required:
+        - teacher_id
+        - username
+        - email
+        - fullname
+        - profile_pic
+      properties:
+        teacher_id:
+          type: string
+          example: "123456789"
+        username:
+          type: string
+          example: "foo-bar"
+        email:
+          type: string
+          example: "example@example.com"
+        fullname:
+          type: string
+          example: "foo bar"
+        profile_pic:
+          type: string
+          example: "https://example/pic.png"
+
+  parameters:
+    # path parameters
+    studentID:
+      in: path
+      name: student-id
+      description: uniquely identify students.
+      schema:
+        type: string
+      example: "1234"
+      required: true
+    teacherID:
+      in: path
+      name: teacher-id
+      description: uniquely identify teachers.
+      schema:
+        type: string
+      example: "1234"
+      required: true
+    wishlistItemID:
+      in: path
+      name: wishlist-item-id
+      description: uniquely identify wishlist item.
+      schema:
+        type: string
+      example: "1234"
+      required: true
+    paymentMethodID:
+      in: path
+      name: payment-method-id
+      description: uniquely identify user's payment method.
+      schema:
+        type: string
+      example: "1234"
+      required: true
+    basketItemID:
+      in: path
+      name: basket-item-id
+      description: uniquely identify student's basket item.
+      schema:
+        type: string
+      example: "1234"
+      required: true
