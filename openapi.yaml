@@ -89,7 +89,6 @@ paths:
                 profile_pic:
                   type: string
                   example: "https://example-pic.png"
-
       responses:
         "200":
           $ref: "#/components/responses/OK"
@@ -867,7 +866,508 @@ paths:
       responses:
         "200":
           $ref: "#/components/responses/OK"
-
+  /programs:
+    get:
+      tags:
+        - program
+      summary: List programs.
+      description: |
+        For listing's programs.
+      operationId: listPrograms
+      responses:
+        "200":
+          description: "OK: List all programs"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/programs"
+  /programs/courses:
+    get:
+      tags:
+        - program
+      summary: List courses.
+      description: |
+        For listing's courses.
+      operationId: listCourses
+      responses:
+        "200":
+          description: "OK: List all courses"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/courses"
+    post:
+      tags:
+        - program
+      summary: Post courses.
+      description: |
+        For adding's course.
+      operationId: postCourse
+      requestBody:
+        description: Course to add.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: "basic course"
+                course_pic:
+                  type: string
+                  example: "https://example-pic.com"
+                description:
+                  type: string
+                  example: "A basic course"
+                quick_description:
+                  type: string
+                  example: "A basic course"
+                price:
+                  type: number
+                  example: 100
+      responses:
+        "200":
+          description: "OK: Add course"
+          content:
+            application/json:
+              schema:
+                required:
+                  - course-id
+                properties:
+                  course-id:
+                    type: string
+                    example: "1234"
+  "/programs/courses/{course-id}":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+    get:
+      tags:
+        - program
+      summary: Get course.
+      description: |
+        For retrieving course.
+      operationId: getCourse
+      responses:
+        "200":
+          description: "OK: Get course"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/course"
+    patch:
+      tags:
+        - program
+      summary: Edit course.
+      description: |
+        For editing course.
+      operationId: patchCourse
+      requestBody:
+        description: Course details to edit.
+        required: true
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: "basic course"
+                course_pic:
+                  type: string
+                  example: "https://example-pic.com"
+                description:
+                  type: string
+                  example: "A basic course"
+                quick_description:
+                  type: string
+                  example: "A basic course"
+                price:
+                  type: number
+                  example: 100
+      responses:
+        "200":
+          description: "OK: Edit course"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/responses/OK"
+    delete:
+      tags:
+        - program
+      summary: Delete specific course.
+      description: |
+        For removing a course.
+      operationId: deleteCourse
+      parameters:
+        - $ref: "#/components/parameters/courseID"
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+  "/programs/courses/{course-id}/students":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+    get:
+      tags:
+        - program
+      summary: List course's students.
+      description: |
+        For listing course's students.
+      operationId: listCourseStudents
+      responses:
+        "200":
+          description: "OK: List course's students"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/course_students"
+  "/programs/courses/{course-id}/chapters":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+    get:
+      tags:
+        - program
+      summary: List course's chapters.
+      description: |
+        For listing course's chapters.
+      operationId: listCourseChapters
+      responses:
+        "200":
+          description: "OK: List course's chapters"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/chapters"
+    post:
+      tags:
+        - program
+      summary: Add course's chapter.
+      description: |
+        For adding a course's chapter.
+      operationId: postCourseChapter
+      requestBody:
+        description: Chapter to add to course.
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - type
+              properties:
+                chapter_num:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "first chapter"
+                description:
+                  type: string
+                  example: "good chapter"
+      responses:
+        "200":
+          description: "OK: Add course's chapter"
+          content:
+            application/json:
+              schema:
+                required:
+                  - chapter-id
+                properties:
+                  chapter-id:
+                    type: string
+                    example: "1234"
+  "/programs/courses/{course-id}/chapters/{chapter-id}":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+      - $ref: "#/components/parameters/chapterID"
+    get:
+      tags:
+        - program
+      summary: Get a course's chapter.
+      description: |
+        For retrieving a course's chapter.
+      operationId: getCourseChapter
+      responses:
+        "200":
+          description: "OK: Get a course's chapter"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/chapter"
+    patch:
+      tags:
+        - program
+      summary: Edit course's chapter.
+      description: |
+        For editing a course's chapter.
+      operationId: patchCourseChapter
+      requestBody:
+        description: Chapter to edit.
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - type
+              properties:
+                chapter_num:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "first chapter"
+                description:
+                  type: string
+                  example: "good chapter"
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+    delete:
+      tags:
+        - program
+      summary: Delete specific course's chapter.
+      description: |
+        For removing a course's chapter.
+      operationId: deleteChapter
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+  "/programs/courses/{course-id}/chapters/{chapter-id}/lessons":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+      - $ref: "#/components/parameters/chapterID"
+    get:
+      tags:
+        - program
+      summary: List course's lessons.
+      description: |
+        For listing a course's lessons.
+      operationId: listCourseLessons
+      responses:
+        "200":
+          description: "OK: List course's lessons"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/lessons"
+    post:
+      tags:
+        - program
+      summary: Add course's lesson.
+      description: |
+        For adding a course's lesson.
+      operationId: postCourseLesson
+      requestBody:
+        description: Lesson to add to course.
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - type
+              properties:
+                lesson_num:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "first lesson"
+                description:
+                  type: string
+                  example: "Good lesson"
+                src:
+                  type: string
+                  example: "https://example-video.mp4"
+      responses:
+        "200":
+          description: "OK: Add course's lesson"
+          content:
+            application/json:
+              schema:
+                required:
+                  - lesson-id
+                properties:
+                  lesson-id:
+                    type: string
+                    example: "1234"
+  "/programs/courses/{course-id}/chapters/{chapter-id}/lessons/{lesson-id}":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+      - $ref: "#/components/parameters/chapterID"
+      - $ref: "#/components/parameters/lessonID"
+    get:
+      tags:
+        - program
+      summary: Get a course's lesson.
+      description: |
+        For retrieving a course's lesson.
+      operationId: getCourseLesson
+      responses:
+        "200":
+          description: "OK: Get a course's lesson"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/lesson"
+    patch:
+      tags:
+        - program
+      summary: Edit specific lesson.
+      description: |
+        For editing a lesson.
+      operationId: patchLesson
+      requestBody:
+        description: Lesson's fields to edit
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                lesson_num:
+                  type: integer
+                  example: 1
+                name:
+                  type: string
+                  example: "first lesson"
+                src:
+                  type: string
+                  example: "https://example-video.mp4"
+                description:
+                  type: string
+                  example: "Good lesson"
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+    delete:
+      tags:
+        - program
+      summary: Delete a specific lesson.
+      description: |
+        For removing a lesson.
+      operationId: deleteLesson
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+  "/programs/courses/{course-id}/announcements":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+    get:
+      tags:
+        - program
+      summary: List course's announcements.
+      description: |
+        For listing course's announcements.
+      operationId: listCourseAnnoucements
+      responses:
+        "200":
+          description: "OK: List course's announcements"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/announcements"
+    post:
+      tags:
+        - program
+      summary: Add course's announcement.
+      description: |
+        For adding a course's announcement.
+      operationId: postCourseAnnouncement
+      requestBody:
+        description: Announcement to add to course.
+        required: true
+        content:
+          application/json:
+            schema:
+              required:
+                - type
+              properties:
+                announcement_id:
+                  type: string
+                  example: "1234"
+                text:
+                  type: string
+                  example: "hello students`"
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      attachment_type:
+                        type: string
+                        example: "image"
+                      src:
+                        type: string
+                        example: "https://example-img.png"
+      responses:
+        "200":
+          description: "OK: Add course's announcement"
+          content:
+            application/json:
+              schema:
+                required:
+                  - announcement-id
+                properties:
+                  announcement-id:
+                    type: string
+                    example: "1234"
+  "/programs/courses/{course-id}/announcements/{announcement-id}":
+    parameters:
+      - $ref: "#/components/parameters/courseID"
+      - $ref: "#/components/parameters/announcementID"
+    get:
+      tags:
+        - program
+      summary: Get a course's announcement.
+      description: |
+        For retrieving a course's announcement.
+      operationId: getCourseAnnoucement
+      responses:
+        "200":
+          description: "OK: List a course's lesson"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/announcement"
+    patch:
+      tags:
+        - program
+      summary: Edit specific announcement.
+      description: |
+        For editing a announcement.
+      operationId: patchAnnoucement
+      requestBody:
+        description: Announcement's fields to edit
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                text:
+                  type: string
+                  example: "hello students`"
+                attachments:
+                  type: array
+                  items:
+                    type: object
+                    properties:
+                      attachment_type:
+                        type: string
+                        example: "image"
+                      src:
+                        type: string
+                        example: "https://example-img.png"
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
+    delete:
+      tags:
+        - program
+      summary: Delete a specific announcement.
+      description: |
+        For removing an announcement.
+      operationId: deleteAnnouncement
+      responses:
+        "200":
+          $ref: "#/components/responses/OK"
 components:
   responses:
     OK:
@@ -921,6 +1421,8 @@ components:
         message:
           type: string
           example: "Internal Server Error"
+
+    # USER SCHEMAS
     userCourse:
       type: object
       required:
@@ -1128,6 +1630,226 @@ components:
           type: string
           example: "https://example/pic.png"
 
+    # PROGRAMS SCHEMAS
+    programs:
+      type: object
+      description: Multiple programs info.
+      properties:
+        programs:
+          type: array
+          items:
+            type: object
+            properties:
+              course_id:
+                type: string
+                example: "123456789"
+              class_id:
+                type: string
+                example: "123456789"
+              type:
+                type: string
+                example: "course"
+              name:
+                type: string
+                example: "basic course"
+    courses:
+      type: object
+      description: Multiple courses info.
+      properties:
+        courses:
+          type: array
+          items:
+            type: object
+            properties:
+              course_id:
+                type: string
+                example: "123456789"
+              name:
+                type: string
+                example: "basic course"
+              teacher:
+                type: object
+                properties:
+                  teacher_id:
+                    type: string
+                    example: "12345"
+              rating:
+                type: number
+                example: 3.5
+              reviewers:
+                type: integer
+                example: 300
+              price:
+                type: number
+                example: 3.5
+              course_pic:
+                type: string
+                example: "https://example-pic.com"
+              progress:
+                type: integer
+                example: 100
+    course:
+      type: object
+      description: A course info
+      properties:
+        course_id:
+          type: string
+          example: "1235567"
+        name:
+          type: string
+          example: "basic redstone course"
+        course_pic:
+          type: string
+          example: "https://example-pic.com"
+        description:
+          type: string
+          example: "Redstone course"
+        quick_description:
+          type: string
+          example: "A basic course"
+        rating:
+          type: number
+          example: 3.5
+        reviewers:
+          type: integer
+          example: 300
+        teacher:
+          type: object
+          properties:
+            teacher_id:
+              type: string
+              example: "12345"
+        price:
+          type: number
+          example: 100
+        total_video_length:
+          type: integer
+          example: 10000000
+        total_chapters:
+          type: integer
+          example: 10
+        total_exercise:
+          type: integer
+          example: 10
+        total_files:
+          type: integer
+          example: 10
+        progress:
+          type: integer
+          example: 100
+    course_students:
+      type: array
+      items:
+        type: object
+        properties:
+          student_id:
+            type: string
+            example: "1234567"
+          name:
+            type: string
+            example: "paff"
+    chapters:
+      type: array
+      items:
+        type: object
+        properties:
+          chapter_id:
+            type: string
+            example: "1235"
+          chapter_num:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "first chapter"
+    chapter:
+      type: object
+      properties:
+        chapter_id:
+          type: string
+          example: "1235"
+        chapter_num:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "first chapter"
+    lessons:
+      type: array
+      items:
+        type: object
+        properties:
+          lesson_id:
+            type: string
+            example: "1235"
+          lesson_num:
+            type: integer
+            example: 1
+          name:
+            type: string
+            example: "first lesson"
+          lesson_type:
+            type: string
+            example: "video"
+          video_length:
+            type: integer
+            example: 12000000
+    lesson:
+      type: object
+      properties:
+        lesson_id:
+          type: string
+          example: "1235"
+        lesson_num:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "first lesson"
+        lesson_type:
+          type: string
+          example: "video"
+        description:
+          type: string
+          example: "Good lesson"
+        src:
+          type: string
+          example: "https://example-video.mp4"
+        progress:
+          type: number
+          example: 100
+    announcements:
+      type: array
+      items:
+        type: object
+        properties:
+          announcement_id:
+            type: string
+            example: "1234"
+    announcement:
+      type: object
+      properties:
+        announcement_id:
+          type: string
+          example: "1234"
+        text:
+          type: string
+          example: "hello students`"
+        teacherID:
+          type: string
+          example: "2133232312323132323"
+        attachments:
+          type: array
+          items:
+            type: object
+            properties:
+              attachment_type:
+                type: string
+                example: "image"
+              src:
+                type: string
+                example: "https://example-img.png"
+
   parameters:
     # path parameters
     studentID:
@@ -1169,4 +1891,36 @@ components:
       schema:
         type: string
       example: "1234"
+      required: true
+    courseID:
+      in: path
+      name: course-id
+      description: uniquely identify courses.
+      schema:
+        type: string
+        example: "1234"
+      required: true
+    chapterID:
+      in: path
+      name: chapter-id
+      description: uniquely identify chapters.
+      schema:
+        type: string
+        example: "1234"
+      required: true
+    lessonID:
+      in: path
+      name: lesson-id
+      description: uniquely identify lessons.
+      schema:
+        type: string
+        example: "1234"
+      required: true
+    announcementID:
+      in: path
+      name: announcement-id
+      description: uniquely identify announcements.
+      schema:
+        type: string
+        example: "1234"
       required: true
